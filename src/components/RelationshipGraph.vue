@@ -1425,7 +1425,6 @@ function handleFileSelected(event) {
   worker.addEventListener('error', function(error) {
     console.error('Worker错误:', error);
     ElMessage.error('导入过程中发生错误');
-    loadingInstance.close();
     worker.terminate();
     event.target.value = '';
   });
