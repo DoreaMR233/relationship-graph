@@ -76,6 +76,55 @@ docker run -d -p 80:80 relationship-graph
 
 在浏览器中打开 `http://localhost:80`
 
+
+
+
+
+
+
+
+## 资源路径前缀配置说明
+
+本项目支持在打包时通过参数配置资源路径前缀，使得打包后的文件中开头为"/assets/..."的路径会被修改为"/参数/assets/..."。
+
+### 使用方法
+
+#### 使用npm命令行
+
+```bash
+# 使用自定义构建命令并传递base参数
+npm run build:custom --base=your_path_prefix
+```
+
+例如，如果你想将资源路径前缀设置为"app"，则可以运行：
+
+```bash
+npm run build:custom --base=app
+```
+
+这样，打包后的文件中，所有"/assets/..."的路径都会被修改为"/app/assets/..."。
+
+#### 使用Docker构建
+
+如果你使用Docker构建项目，可以通过构建参数传递路径前缀：
+
+```bash
+# 构建Docker镜像并传递BASE_PATH参数
+docker build --build-arg BASE_PATH=your_path_prefix -t relationship-graph .
+```
+
+例如，如果你想将资源路径前缀设置为"app"，则可以运行：
+
+```bash
+docker build --build-arg BASE_PATH=app -t relationship-graph .
+```
+
+### 注意事项
+
+1. 如果不传递参数，则资源路径前缀默认为空，即保持原始的"/assets/..."路径。
+2. 参数值不需要包含前导和尾随斜杠，系统会自动处理。
+3. 该功能主要用于在不同的部署环境中调整资源路径，例如当应用部署在子目录而非根目录时。
+
 ## 功能描述
 
 ### 基本操作指南

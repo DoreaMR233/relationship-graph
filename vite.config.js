@@ -13,12 +13,16 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'        // Vue 3支持插件
 import vueDevTools from 'vite-plugin-vue-devtools'  // Vue开发工具插件
 
+// 获取环境变量中的BASE_PATH，如果未设置则默认为空字符串
+const basePath = process.env.BASE_PATH || '';
+
 // Vite配置
 export default defineConfig({
   plugins: [
     vue(),                // 启用Vue 3支持
     vueDevTools(),       // 启用Vue开发者工具
   ],
+  base: basePath ? `/${basePath}/` : '/',  // 设置资源基础路径
   resolve: {
     alias: {
       // 设置@别名指向src目录，方便导入

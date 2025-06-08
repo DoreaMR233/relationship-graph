@@ -13,8 +13,11 @@ RUN npm install
 # 复制项目文件
 COPY . .
 
-# 构建生产版本
-RUN npm run build
+# 构建参数，默认为空
+ARG BASE_PATH=""
+
+# 构建生产版本，使用自定义构建脚本并传递参数
+RUN npm run build:custom --base=$BASE_PATH
 
 # 使用Nginx作为生产服务器
 FROM nginx:alpine
