@@ -13,11 +13,8 @@ RUN npm install
 # 复制项目文件
 COPY . .
 
-# 构建参数，默认为空
-ARG BASE_PATH=""
-
-# 构建生产版本，使用自定义构建脚本并传递参数
-RUN npm run build:custom --base=$BASE_PATH
+# 构建生产版本，不传递BASE_PATH参数，使用默认值
+RUN npm run build
 
 # 使用Nginx作为生产服务器
 FROM nginx:alpine
@@ -25,8 +22,17 @@ FROM nginx:alpine
 # 复制构建产物
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# 复制启动脚本
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+# 确保脚本可执行
+RUN chmod +x /docker-entrypoint.sh
+
 # 暴露端口
 EXPOSE 80
+
+# 使用启动脚本替代直接启动Nginx
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # 启动Nginx服务
 CMD ["nginx", "-g", "daemon off;"]

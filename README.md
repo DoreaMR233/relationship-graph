@@ -69,11 +69,16 @@
 2. 运行Docker容器
 
    ```bash
+   # 不设置资源路径前缀
    docker run -d -p 80:80 relationship-graph
+   
+   # 设置资源路径前缀为"app"
+   docker run -d -p 80:80 -e BASE_PATH=app relationship-graph
    ```
 
 3. 访问应用
-   在浏览器中打开 `http://localhost:80`
+   - 不设置前缀时：在浏览器中打开 `http://localhost:80`
+   - 设置前缀为"app"时：在浏览器中打开 `http://localhost:80/app`
 
 ## 资源路径前缀配置说明
 
@@ -96,19 +101,19 @@ npm run build:custom --base=app
 
 这样，打包后的文件中，所有"/assets/..."的路径都会被修改为"/app/assets/..."。
 
-#### 使用Docker构建
+#### 使用Docker运行
 
-如果你使用Docker构建项目，可以通过构建参数传递路径前缀：
+使用Docker时，可以通过环境变量在容器启动时设置资源路径前缀：
 
 ```bash
-# 构建Docker镜像并传递BASE_PATH参数
-docker build --build-arg BASE_PATH=your_path_prefix -t relationship-graph .
+# 运行Docker容器并设置BASE_PATH环境变量
+docker run -d -p 80:80 -e BASE_PATH=your_path_prefix relationship-graph
 ```
 
 例如，如果你想将资源路径前缀设置为"app"，则可以运行：
 
 ```bash
-docker build --build-arg BASE_PATH=app -t relationship-graph .
+docker run -d -p 80:80 -e BASE_PATH=app relationship-graph
 ```
 
 ### 注意事项
@@ -116,6 +121,7 @@ docker build --build-arg BASE_PATH=app -t relationship-graph .
 1. 如果不传递参数，则资源路径前缀默认为空，即保持原始的"/assets/..."路径。
 2. 参数值不需要包含前导和尾随斜杠，系统会自动处理。
 3. 该功能主要用于在不同的部署环境中调整资源路径，例如当应用部署在子目录而非根目录时。
+4. 使用Docker时，环境变量设置的资源路径前缀会在容器启动时动态应用，无需重新构建镜像。
 
 ## 功能描述
 
@@ -128,7 +134,7 @@ docker build --build-arg BASE_PATH=app -t relationship-graph .
    右击人物节点可以选择修改人物节点信息或删除人物节点。
 
 3. **创建关系**  
-   点击"创建关系"按钮进入创建关系模式，依次点击人物节点A和人物节点B，在弹出框中填写关系名称，点击"确定"按钮创建人物节点间关系。（A为关系起点，B为关系终点，关系名称应为“B对A的称谓”）
+   点击"创建关系"按钮进入创建关系模式，依次点击人物节点A和人物节点B，在弹出框中填写关系名称，点击"确定"按钮创建人物节点间关系。（A为关系起点，B为关系终点，关系名称应为"B对A的称谓"）
 
 4. **修改/删除关系**  
    点击关系线可以选择修改关系或删除关系。
