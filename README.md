@@ -35,53 +35,45 @@
 
 1. 克隆项目
 
-```bash
-git clone <repository-url>
-cd relationship-graph
-```
+   ```bash
+   git clone <repository-url>
+   cd relationship-graph
+   ```
 
 2. 安装依赖
 
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 3. 开发环境运行
 
-```bash
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
 
 4. 构建生产版本
 
-```bash
-npm run build
-```
+   ```bash
+   npm run build
+   ```
 
 ### Docker安装
 
 1. 构建Docker镜像
 
-```bash
-docker build -t relationship-graph .
-```
+   ```bash
+   docker build -t relationship-graph .
+   ```
 
 2. 运行Docker容器
 
-```bash
-docker run -d -p 80:80 relationship-graph
-```
+   ```bash
+   docker build -t relationship-graph .
+   ```
 
 3. 访问应用
-
-在浏览器中打开 `http://localhost:80`
-
-
-
-
-
-
-
+   在浏览器中打开 `http://localhost:80`
 
 ## 资源路径前缀配置说明
 
