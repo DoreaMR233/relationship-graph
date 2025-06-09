@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/jsconfig",
   "name": "relationship-graph",
   "version": "0.0.0",
   "private": true,
