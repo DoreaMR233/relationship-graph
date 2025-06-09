@@ -1,55 +1,76 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/* 
+ * base.css - 基础样式文件
+ * 包含项目的颜色变量定义和基础样式设置
+ */
+
+/* 来自 <https://github.com/vuejs/theme> 的调色板 */
 :root {
+  /* 白色系列 */
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
   --vt-c-white-mute: #f2f2f2;
 
+  /* 黑色系列 */
   --vt-c-black: #181818;
   --vt-c-black-soft: #222222;
   --vt-c-black-mute: #282828;
 
+  /* 靛蓝色 */
   --vt-c-indigo: #2c3e50;
 
+  /* 分隔线颜色 - 亮色主题 */
   --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
   --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
+  /* 分隔线颜色 - 暗色主题 */
   --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
   --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
 
+  /* 文本颜色 - 亮色主题 */
   --vt-c-text-light-1: var(--vt-c-indigo);
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
+  /* 文本颜色 - 暗色主题 */
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 }
 
-/* semantic color variables for this project */
+/* 项目语义化颜色变量 */
 :root {
+  /* 背景颜色 */
   --color-background: var(--vt-c-white);
   --color-background-soft: var(--vt-c-white-soft);
   --color-background-mute: var(--vt-c-white-mute);
 
+  /* 边框颜色 */
   --color-border: var(--vt-c-divider-light-2);
   --color-border-hover: var(--vt-c-divider-light-1);
 
+  /* 文本颜色 */
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
 
+  /* 区块间距 */
   --section-gap: 160px;
 }
 
+/* 暗色模式适配 */
 @media (prefers-color-scheme: dark) {
   :root {
+    /* 背景颜色 - 暗色模式 */
     --color-background: var(--vt-c-black);
     --color-background-soft: var(--vt-c-black-soft);
     --color-background-mute: var(--vt-c-black-mute);
 
+    /* 边框颜色 - 暗色模式 */
     --color-border: var(--vt-c-divider-dark-2);
     --color-border-hover: var(--vt-c-divider-dark-1);
 
+    /* 文本颜色 - 暗色模式 */
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
   }
 }
 
+/* 全局盒模型设置 */
 *,
 *::before,
 *::after {
@@ -58,6 +79,7 @@
   font-weight: normal;
 }
 
+/* 基础页面样式 */
 body {
   min-height: 100vh;
   color: var(--color-text);

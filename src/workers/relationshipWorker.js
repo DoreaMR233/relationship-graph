@@ -11,28 +11,28 @@ self.addEventListener('message', function(e) {
   const data = e.data;
   
   try {
-    // Check the action type
+    // 检查操作类型
     if (data.action === 'visualizeChain') {
-      // Process chain visualization
+      // 处理关系链可视化
       const result = visualizeRelationChain(data);
       
-      // Send the result back to the main thread
+      // 将结果发送回主线程
       self.postMessage({
         type: 'chainVisualization',
         result: result
       });
     } else {
-      // Default action: calculate relationship
+      // 默认操作：计算人物关系
       const result = calculateRelationship(data);
       
-      // Send the result back to the main thread
+      // 将结果发送回主线程
       self.postMessage({
         type: 'result',
         result: result
       });
     }
   } catch (error) {
-    // Send any errors back to the main thread
+    // 将错误发送回主线程
     self.postMessage({
       type: 'error',
       error: error.message
@@ -50,16 +50,16 @@ self.addEventListener('message', function(e) {
 function buildRelationshipGraph(nodes, edges, isReverse = false) {
   const graph = {};
   
-  // Initialize graph
+  // 初始化图结构
   nodes.forEach(node => {
     graph[node.id] = [];
   });
   
-  // Add edges
+  // 添加边
   edges.forEach(edge => {
     if(isReverse){
       graph[edge.from].push(edge.to);
-      // Add reverse edge for bidirectional search
+      // 为双向搜索添加反向边
       graph[edge.to].push(edge.from);
     }else{
       graph[edge.from].push(edge.from);
@@ -81,7 +81,7 @@ function buildRelationshipGraph(nodes, edges, isReverse = false) {
  */
 function findAllPaths(graph, start, end, maxDepth = 5) {
   const paths = [];
-  const pathSet = new Set(); // For detecting duplicate paths
+  const pathSet = new Set(); // 用于检测重复路径
   
   /**
    * 深度优先搜索辅助函数
@@ -171,19 +171,18 @@ function mapRelationToStandard(relation) {
 
 /**
  * 根据年龄获取准确称谓
- * @param {Object} from 起始人物节点
- * @param {Object} to 结束人物节点
- * @param {Array} relationshipText 通过relationship.js计算得出的称谓数组
+ * @param {Object} from - 起始人物节点
+ * @param {Object} to - 结束人物节点
+ * @param {Array} relationshipText - 通过relationship.js计算得出的称谓数组
  * @returns {Array} 准确称谓数组
  */
-function getAccurateRelation(from,to,relationshipText){
+function getAccurateRelation(from, to, relationshipText){
   const accurateRelationText = [];
-  if(relationshipText.length===0){
+  if(relationshipText.length === 0){
     accurateRelationText.push("无法计算") ;
   }else if(from.id === to.id && relationshipText.length === 3 && relationshipText[2] === "自己"){
     accurateRelationText.push(relationshipText[2]);
   }else if(relationshipText.length > 1){
-    console.log(from+" "+to)
     if(from.age > to.age){
       accurateRelationText.push(relationshipText[0]);
     }else if(from.age < to.age){
@@ -211,10 +210,10 @@ function getAccurateRelation(from,to,relationshipText){
 function calculateRelationship(data) {
   const { fromNode, toNode, nodesData, edgesData } = data;
   
-  // Build relationship graph
-  const graph = buildRelationshipGraph(nodesData, edgesData,true);
+  // 构建关系图
+  const graph = buildRelationshipGraph(nodesData, edgesData, true);
   
-  // Find all possible paths
+  // 查找所有可能的路径
   const paths = findAllPaths(graph, toNode.id, fromNode.id);
   
   if (paths.length === 0) {
@@ -223,7 +222,7 @@ function calculateRelationship(data) {
     };
   }
   
-  // Convert paths to relationship chains
+  // 将路径转换为关系链
   const chains = paths.map(path => {
     const relationChain = [];
     if (path.length > 1) {
@@ -233,11 +232,11 @@ function calculateRelationship(data) {
         const fromNode = nodesData.find(n => n.id === fromId);
         const toNode = nodesData.find(n => n.id === toId);
         
-        // Find edge from toId to fromId
+        // 查找从toId到fromId的边
         let edge = edgesData.find(e => e.from === toId && e.to === fromId);
         let isReverse = true;
         
-        // If not found, try reverse edge
+        // 如果没找到，尝试查找反向边
         if (!edge) {
           edge = edgesData.find(e => e.from === fromId && e.to === toId);
           isReverse = false;
@@ -273,26 +272,26 @@ function calculateRelationship(data) {
     }
     return relationChain;
   });
-  // Calculate titles using relationship.js
+  // 使用relationship.js计算称谓
   let forwardTitle = [];
   let reverseTitle = [];
   let allChains = [];
   
   try {
-    // Calculate titles for all paths
+    // 计算所有路径的称谓
     allChains = chains.map(chain => {
       // 由于关系链是从结束节点到起始节点的顺序，所以在计算称谓时正向称谓要开启翻转，反向称谓不需要翻转
       const relationText = buildRelationText(chain);
-      let forwardName = relationship({ text: relationText, reverse: true,sex: fromNode.gender });
-      forwardName = getAccurateRelation(toNode,fromNode,forwardName);
+      let forwardName = relationship({ text: relationText, reverse: true, sex: fromNode.gender });
+      forwardName = getAccurateRelation(toNode, fromNode, forwardName);
       let reverseName = relationship({ text: relationText, reverse: false, sex: fromNode.gender });
-      reverseName = getAccurateRelation(fromNode,toNode,reverseName);
+      reverseName = getAccurateRelation(fromNode, toNode, reverseName);
       return {
         forward: forwardName,
         reverse: reverseName
       };
     });
-    // Format as display text
+    // 格式化为显示文本
     forwardTitle = allChains.map(c => c.forward.join('/'));
     reverseTitle = allChains.map(c => c.reverse.join('/'));
   } catch (error) {
@@ -300,7 +299,7 @@ function calculateRelationship(data) {
     forwardTitle = ['无法计算'];
     reverseTitle = ['无法计算'];
   }
-  // Format chain descriptions
+  // 格式化关系链描述
   const formattedChains = chains.map((chain, index) => {
     let chainDescription = '';
     
@@ -347,19 +346,19 @@ function visualizeRelationChain(data) {
   const chain = JSON.parse(data.chain);
   const nodesData = data.nodes;
   const edgesData = data.edges;
-  // Get the raw chain data
+  // 获取原始关系链数据
   const rawChain = chain.rawChain;
   if (!rawChain || rawChain.length === 0) {
     throw new Error('关系链数据不完整');
   }
-  // Build relation chain network data
+  // 构建关系链网络数据
   const chainNodes = [];
   const chainEdges = [];
   
-  // Track inserted nodes to avoid duplicates
+  // 跟踪已插入的节点以避免重复
   const insertedNodes = new Set();
   
-  // Add starting node
+  // 添加起始节点
   const fromNode = nodesData.find(n => n.id === rawChain[0].fromId);
   if (!fromNode) {
     throw new Error('找不到起始节点');
@@ -368,7 +367,7 @@ function visualizeRelationChain(data) {
   chainNodes.push(fromNode);
   insertedNodes.add(fromNode.id);
   
-  // Add intermediate nodes and edges
+  // 添加中间节点和边
   for (let i = 0; i < rawChain.length; i++) {
     const toNode = nodesData.find(n => n.id === rawChain[i].toId);
     
@@ -377,13 +376,13 @@ function visualizeRelationChain(data) {
       continue;
     }
     
-    // Add node if not already added
+    // 如果节点尚未添加，则添加节点
     if (!insertedNodes.has(toNode.id)) {
       chainNodes.push(toNode);
       insertedNodes.add(toNode.id);
     }
     
-    // Add edge
+    // 添加边
     const edge = edgesData.find(n => n.id === rawChain[i].edgeId);
     chainEdges.push(edge);
   }
