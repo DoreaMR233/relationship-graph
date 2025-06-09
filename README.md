@@ -69,7 +69,7 @@
 2. 运行Docker容器
 
    ```bash
-   docker build -t relationship-graph .
+   docker run -d -p 80:80 relationship-graph
    ```
 
 3. 访问应用
