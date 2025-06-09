@@ -92,11 +92,11 @@
     <template #default="{ row }">
       <div class="title-container">
         <div class="title-item">
-          <span class="title-label">正向：</span>
+          <span class="title-label">正向({{ calculateResult.from.name }} 叫 {{ calculateResult.to.name }})：</span>
           <el-tag type="success">{{ row.forward }}</el-tag>
         </div>
         <div class="title-item">
-          <span class="title-label">反向：</span>
+          <span class="title-label">反向({{ calculateResult.to.name }} 叫 {{ calculateResult.from.name }})：</span>
           <el-tag type="warning">{{ row.reverse }}</el-tag>
         </div>
       </div>
@@ -1051,6 +1051,8 @@ function calculateRelationship() {
  * @param {Object} row - 关系链数据行
  */
 function showRelationChain(row) {
+  console.log(row)
+  console.log(row.rawChain)
   const loadingInstance = ElLoading.service({
     lock: true,
     text: '正在生成关系链可视化',
@@ -1060,7 +1062,7 @@ function showRelationChain(row) {
   try {
     const chainIndex = row.index;
     const chain = calculateResult.chains[chainIndex];
-
+    console.log(chain)
     if (!chain) {
       ElMessage.error('关系链数据不完整');
       loadingInstance.close();
@@ -1110,36 +1112,12 @@ function showRelationChain(row) {
       // 终止Worker
       worker.terminate();
     });
-    
-    // 只传递必要的数据给Worker，避免无法克隆的对象
-    const fromNode = {
-      id: calculateResult.from.id,
-      name: calculateResult.from.name,
-      gender: calculateResult.from.gender
-    };
-    
-    const toNode = {
-      id: calculateResult.to.id,
-      name: calculateResult.to.name,
-      gender: calculateResult.to.gender
-    };
-    
-    // 简化节点数据，只保留必要的属性
-    const simplifiedNodes = nodes.get().map(node => ({
-      id: node.id,
-      name: node.name || node.label,
-      shape: node.shape,
-      image: node.image,
-      color: node.color,
-      gender: node.gender
-    }));
     // 发送数据到Worker
     worker.postMessage({
       action: 'visualizeChain',
       chain: JSON.stringify(chain),
-      nodes: simplifiedNodes,
-      from: fromNode,
-      to: toNode
+      nodes: nodes.get(),
+      edges: edges.get()
     });
   } catch (error) {
     console.error('启动Worker错误:', error);
