@@ -176,6 +176,21 @@
         </span>
       </template>
     </el-dialog>
+    
+<!-- 导出文件对话框 -->
+<el-dialog v-model="exportDialogVisible" title="导出关系图" width="30%">
+  <el-form label-width="80px">
+    <el-form-item label="文件名" required>
+      <el-input v-model="exportFileName" placeholder="请输入文件名"></el-input>
+    </el-form-item>
+  </el-form>
+  <template #footer>
+    <span class="dialog-footer">
+      <el-button @click="exportDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="confirmExport">确定</el-button>
+    </span>
+  </template>
+  </el-dialog>
   </div>
 </template>
 
@@ -1276,10 +1291,31 @@ function handleNewGraph() {
 }
 
 /**
+ * 导出对话框是否可见
+ * @type {import('vue').Ref<boolean>}
+ */
+const exportDialogVisible = ref(false);
+
+/**
+ * 导出文件名
+ * @type {import('vue').Ref<string>}
+ */
+const exportFileName = ref('relationship-graph.json');
+
+/**
  * 处理导出按钮点击
  * 将当前关系图导出为JSON文件
  */
 function handleExport() {
+  exportFileName.value = 'relationship-graph.json';
+  exportDialogVisible.value = true;
+}
+
+/**
+ * 确认导出操作
+ * 将当前关系图导出为用户指定文件名的JSON文件
+ */
+function confirmExport() {
   const loadingInstance = ElLoading.service({
     lock: true,
     text: '正在导出文件',
@@ -1295,11 +1331,18 @@ function handleExport() {
     }
   };
   
+  // 确保文件名以.json结尾
+  let fileName = exportFileName.value;
+  if (!fileName.toLowerCase().endsWith('.json')) {
+    fileName += '.json';
+  }
+  
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  saveAs(blob, 'relationship-graph.json');
+  saveAs(blob, fileName);
   
   ElMessage.success('关系图已导出');
   loadingInstance.close();
+  exportDialogVisible.value = false;
 }
 
 /**
@@ -1377,14 +1420,12 @@ function handleFileSelected(event) {
               nextTick(() => {
                 handleFitScreen();
               });
-              
             }
           }
           requestAnimationFrame(addEdgeBatch);
         }
       }
       requestAnimationFrame(addNodeBatch);
-      
     } else if (data.type === 'error') {
       ElMessage.error('导入失败：' + data.error);
     }
