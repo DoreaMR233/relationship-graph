@@ -170,6 +170,35 @@ function mapRelationToStandard(relation) {
 }
 
 /**
+ * 根据年龄获取准确称谓
+ * @param {Object} from 起始人物节点
+ * @param {Object} to 结束人物节点
+ * @param {Array} relationshipText 通过relationship.js计算得出的称谓数组
+ * @returns {Array} 准确称谓数组
+ */
+function getAccurateRelation(from,to,relationshipText){
+  const accurateRelationText = [];
+  if(relationshipText.length===0){
+    accurateRelationText.push("无法计算") ;
+  }else if(from.id === to.id && relationshipText.length === 3 && relationshipText[2] === "自己"){
+    accurateRelationText.push(relationshipText[2]);
+  }else if(relationshipText.length > 1){
+    console.log(from+" "+to)
+    if(from.age > to.age){
+      accurateRelationText.push(relationshipText[0]);
+    }else if(from.age < to.age){
+      accurateRelationText.push(relationshipText[1]);
+    }else if(from.age === to.age){
+      accurateRelationText.push(relationshipText[0]);
+      accurateRelationText.push(relationshipText[1]);
+    }
+  }else{
+    relationshipText.map(c => accurateRelationText.push(c))
+  }
+  return accurateRelationText;
+}
+
+/**
  * 主要的关系计算函数
  * 计算两个人物节点之间的所有可能关系
  * @param {Object} data - 输入数据
@@ -196,7 +225,6 @@ function calculateRelationship(data) {
   
   // Convert paths to relationship chains
   const chains = paths.map(path => {
-    console.log(path)
     const relationChain = [];
     if (path.length > 1) {
       for (let i = 0; i < path.length - 1; i++) {
@@ -255,17 +283,10 @@ function calculateRelationship(data) {
     allChains = chains.map(chain => {
       // 由于关系链是从结束节点到起始节点的顺序，所以在计算称谓时正向称谓要开启翻转，反向称谓不需要翻转
       const relationText = buildRelationText(chain);
-      console.log(relationText)
-      const forwardName = relationship({ text: relationText, reverse: true,sex: fromNode.gender })
-      if(!forwardName){
-        forwardName = 无法计算;
-      }
-      console.log(forwardName)
-      const reverseName = relationship({ text: relationText, reverse: false, sex: fromNode.gender })
-      if(!reverseName){
-        reverseName = 无法计算;
-      }
-      console.log(reverseName)
+      let forwardName = relationship({ text: relationText, reverse: true,sex: fromNode.gender });
+      forwardName = getAccurateRelation(toNode,fromNode,forwardName);
+      let reverseName = relationship({ text: relationText, reverse: false, sex: fromNode.gender });
+      reverseName = getAccurateRelation(fromNode,toNode,reverseName);
       return {
         forward: forwardName,
         reverse: reverseName
@@ -287,7 +308,6 @@ function calculateRelationship(data) {
       // 关系链是从结束节点到起始节点的顺序，所以需要调整顺序
       chainDescription = chain[chain.length - 1].to + `是${chain[0].from}的`;
       for (let i = 0; i < chain.length; i++) {
-        console.log(index+":"+chain[i].from+" "+chain[i].to+" "+chain[i].relation)
         if (i < chain.length - 1) {
           chainDescription += chain[i].relation + `（${chain[i].to}）的`;
         } else {
@@ -346,13 +366,6 @@ function visualizeRelationChain(data) {
   }
   
   chainNodes.push(fromNode);
-  console.log({
-    id: fromNode.id,
-    label: fromNode.name,
-    shape: fromNode.shape || 'circle',
-    image: fromNode.image,
-    color: fromNode.color
-  })
   insertedNodes.add(fromNode.id);
   
   // Add intermediate nodes and edges

@@ -139,7 +139,7 @@
           </li>
           <li>
             <strong>创建关系：</strong>
-            <p>点击"创建关系"按钮进入创建关系模式，依次点击人物节点A和人物节点B，在弹出框中填写关系名称，点击"确定"按钮创建人物节点间关系。（A为关系起点，B为关系终点）</p>
+            <p>点击"创建关系"按钮进入创建关系模式，依次点击人物节点A和人物节点B，在弹出框中填写关系名称，点击"确定"按钮创建人物节点间关系。（A为关系起点，B为关系终点，关系名称应为“B对A的称谓”）</p>
           </li>
           <li>
             <strong>修改/删除关系：</strong>
@@ -1051,8 +1051,6 @@ function calculateRelationship() {
  * @param {Object} row - 关系链数据行
  */
 function showRelationChain(row) {
-  console.log(row)
-  console.log(row.rawChain)
   const loadingInstance = ElLoading.service({
     lock: true,
     text: '正在生成关系链可视化',
@@ -1062,7 +1060,6 @@ function showRelationChain(row) {
   try {
     const chainIndex = row.index;
     const chain = calculateResult.chains[chainIndex];
-    console.log(chain)
     if (!chain) {
       ElMessage.error('关系链数据不完整');
       loadingInstance.close();
