@@ -367,23 +367,33 @@ function visualizeRelationChain(data) {
   chainNodes.push(fromNode);
   insertedNodes.add(fromNode.id);
   
-  // 添加中间节点和边
-  for (let i = 0; i < rawChain.length; i++) {
-    const toNode = nodesData.find(n => n.id === rawChain[i].toId);
-    
-    if (!toNode) {
-      console.warn(`找不到节点ID: ${rawChain[i].toId}`);
-      continue;
+  if(rawChain.length > 1){
+    // 添加中间节点和边
+    for (let i = 0; i < rawChain.length; i++) {
+      const toNode = nodesData.find(n => n.id === rawChain[i].toId);
+      
+      if (!toNode) {
+        console.warn(`找不到节点ID: ${rawChain[i].toId}`);
+        continue;
+      }
+      
+      // 如果节点尚未添加，则添加节点
+      if (!insertedNodes.has(toNode.id)) {
+        chainNodes.push(toNode);
+        insertedNodes.add(toNode.id);
+      }
+      
+      // 添加边
+      const edge = edgesData.find(n => n.id === rawChain[i].edgeId);
+      chainEdges.push(edge);
     }
-    
-    // 如果节点尚未添加，则添加节点
-    if (!insertedNodes.has(toNode.id)) {
-      chainNodes.push(toNode);
-      insertedNodes.add(toNode.id);
+  }else{
+    const edge = {
+      id: null,
+      from: rawChain[0].fromId,
+      to: rawChain[0].toId,
+      label: rawChain[0].relation
     }
-    
-    // 添加边
-    const edge = edgesData.find(n => n.id === rawChain[i].edgeId);
     chainEdges.push(edge);
   }
   
