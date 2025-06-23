@@ -26,6 +26,10 @@ FROM nginx:alpine
 
 # 复制构建产物
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/.env /app/.env
+
+# 复制自定义Nginx配置文件
+COPY nginx.conf /nginx.conf
 
 # 复制启动脚本
 COPY docker-entrypoint.sh /docker-entrypoint.sh
