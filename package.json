@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:custom": "cross-env BASE_PATH=$npm_config_base vite build",
     "preview": "vite preview"
   },
   "dependencies": {
