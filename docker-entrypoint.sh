@@ -6,6 +6,7 @@ set -e
 # 定义HTML文件路径
 HTML_DIR="/usr/share/nginx/html"
 HTML_FILE="$HTML_DIR/index.html"
+NGINX_CONF="/etc/nginx/nginx.conf"
 
 # 检查是否设置了VITE_BASE_PATH环境变量
 # if [ -n "$VITE_BASE_PATH" ]; then
@@ -48,6 +49,17 @@ if [ -f "$ENV_FILE" ]; then
 fi
 # 显示资源路径前缀
 echo "资源路径前缀: $VITE_BASE_PATH"
+
+# 复制自定义的nginx配置文件
+if [ -f "/nginx.conf" ]; then
+  echo "使用自定义Nginx配置文件"
+  cp /nginx.conf $NGINX_CONF
+
+  # 替换nginx.conf中的环境变量
+  sed -i "s|\${VITE_BASE_PATH}|$VITE_BASE_PATH|g" $NGINX_CONF
+  echo "Nginx配置文件中的VITE_BASE_PATH已替换为: $VITE_BASE_PATH"
+
+fi
 
 # 显示启动信息
 echo "启动Nginx服务器..."
