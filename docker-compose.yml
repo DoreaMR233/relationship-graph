@@ -1,0 +1,15 @@
+services:
+  relationship-graph:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # 资源路径前缀，可选，默认为空，填写时不要带上前后斜杠
+        - VITE_BASE_PATH=
+    image: relationship-graph
+    container_name: relationship-graph
+    ports:
+      - "9582:80"
+    environment:
+      - VITE_BASE_PATH=${VITE_BASE_PATH:-}
+    restart: always
