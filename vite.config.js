@@ -9,24 +9,37 @@
 import { fileURLToPath, URL } from 'node:url'
 
 // 导入Vite核心API和插件
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv  } from 'vite'
 import vue from '@vitejs/plugin-vue'        // Vue 3支持插件
 import vueDevTools from 'vite-plugin-vue-devtools'  // Vue开发工具插件
 
-// 获取环境变量中的VITE_BASE_PATH，如果未设置则默认为空字符串
-const basePath = import.meta.env.VITE_BASE_PATH || '';
+
 
 // Vite配置
-export default defineConfig({
-  plugins: [
-    vue(),                // 启用Vue 3支持
-    vueDevTools(),       // 启用Vue开发者工具
-  ],
-  base: basePath ? `/${basePath}/` : '/',  // 设置资源基础路径
-  resolve: {
-    alias: {
-      // 设置@别名指向src目录，方便导入
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+export default defineConfig(({ mode }) => {
+  // 加载环境变量
+  const env = loadEnv(mode, process.cwd())
+  // 获取环境变量中的VITE_BASE_PATH，如果未设置则默认为空字符串
+  const basePath = env.VITE_BASE_PATH || '';
+  
+
+  return {
+    plugins: [
+      vue(),                // 启用Vue 3支持
+      vueDevTools(),       // 启用Vue开发者工具
+    ],
+    base: basePath ? `/${basePath}/` : '/',  // 设置资源基础路径
+    server:{
+      port: 5174,
+      resolve: {
+      alias: {
+        // 设置@别名指向src目录，方便导入
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      },
     },
-  },
+    }
+
+  }
+  
+  
 })
