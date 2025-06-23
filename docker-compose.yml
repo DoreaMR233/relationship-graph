@@ -4,12 +4,11 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # 资源路径前缀，可选，默认为空，填写时不要带上前后斜杠
-        - VITE_BASE_PATH=
+        # 资源路径前缀，可选，覆盖.env文件中的同名变量
+        # 默认为空，为空时使用.env中同名变量，填写时不要带上前后斜杠
+        - VITE_BASE_PATH=relationship
     image: relationship-graph
     container_name: relationship-graph
     ports:
-      - "9582:80"
-    environment:
-      - VITE_BASE_PATH=${VITE_BASE_PATH:-}
+      - "9581:80"
     restart: always
