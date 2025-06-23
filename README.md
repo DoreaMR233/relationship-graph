@@ -4,17 +4,22 @@
 
 ## 目录
 
-- [项目结构](#项目结构)
-- [技术栈](#技术栈)
-- [API接口](#api接口)
-- [使用说明](#使用说明)
-  - [本地部署](#本地部署)
-  - [Docker部署](#docker部署)
-  - [配置文件说明](#配置文件说明)
-- [功能描述](#功能描述)
-  - [基本操作指南](#基本操作指南)
-  - [显示说明](#显示说明)
-- [许可证](#许可证)
+- [人物关系图制作器 (Relationship Graph)](#人物关系图制作器-relationship-graph)
+  - [目录](#目录)
+  - [项目结构](#项目结构)
+  - [技术栈](#技术栈)
+  - [API接口](#api接口)
+  - [使用说明](#使用说明)
+    - [本地部署](#本地部署)
+    - [Docker部署](#docker部署)
+    - [配置文件说明](#配置文件说明)
+      - [.env 文件](#env-文件)
+      - [docker-compose.yml](#docker-composeyml)
+      - [docker-entrypoint.sh](#docker-entrypointsh)
+  - [功能描述](#功能描述)
+    - [基本操作指南](#基本操作指南)
+    - [显示说明](#显示说明)
+  - [许可证](#许可证)
 
 ## 项目结构
 
@@ -34,6 +39,7 @@
 ├── docker-compose.yml    # Docker Compose配置
 ├── docker-entrypoint.sh  # Docker容器启动脚本
 ├── .env.example          # 环境变量示例
+└── nginx.conf            # Docker容器中Nginx的配置文件
 └── vite.config.js        # Vite配置文件
 ```
 

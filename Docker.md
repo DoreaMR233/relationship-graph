@@ -1,6 +1,6 @@
 # 人物关系图制作器 Docker 部署指南
 
-本文档提供了使用 Docker 部署字符画转换器应用的详细说明，包括一体化 Dockerfile 和 Docker Compose 两种部署方式。
+本文档提供了使用 Docker 部署人物关系图制作器应用的详细说明，包括一体化 Dockerfile 和 Docker Compose 两种部署方式。
 
 ## 目录
 
@@ -36,6 +36,7 @@
 ├── docker-entrypoint.sh  # 容器启动脚本
 ├── .env.docker           # Docker 环境变量示例文件
 └── .env.example          # 环境变量示例文件
+└── nginx.conf            # Docker容器中Nginx的配置文件
 ```
 
 ## 使用 Docker Compose 部署
