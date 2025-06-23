@@ -2,36 +2,62 @@
 
 一个基于Vue 3和vis-network的交互式人物关系图制作工具，可以创建、编辑、计算和可视化人物之间的关系网络。
 
-## 项目截图
+## 目录
 
-### 主界面
+- [项目结构](#项目结构)
+- [技术栈](#技术栈)
+- [API接口](#api接口)
+- [使用说明](#使用说明)
+  - [本地部署](#本地部署)
+  - [Docker部署](#docker部署)
+  - [配置文件说明](#配置文件说明)
+- [功能描述](#功能描述)
+  - [基本操作指南](#基本操作指南)
+  - [显示说明](#显示说明)
+- [许可证](#许可证)
 
-![主界面](./img/image1.png)
+## 项目结构
 
-### 导入节点
-
-![导入节点](./img/image2.png)
-
-### 关系计算
-
-![关系计算](./img/image3.png)
-
-### 关系链可视化
-
-![关系链可视化](./img/image4.png)
+```
+├── src/                  # 源代码目录
+│   ├── assets/           # 静态资源
+│   ├── components/       # 组件
+│   │   └── RelationshipGraph.vue  # 关系图主组件
+│   ├── workers/          # Web Workers
+│   │   ├── importWorker.js        # 导入处理
+│   │   └── relationshipWorker.js  # 关系计算
+│   ├── App.vue           # 主应用组件
+│   └── main.js           # 应用入口
+├── public/               # 公共资源目录
+├── img/                  # 图片资源
+├── Dockerfile            # Docker镜像构建文件
+├── docker-compose.yml    # Docker Compose配置
+├── docker-entrypoint.sh  # Docker容器启动脚本
+├── .env.example          # 环境变量示例
+└── vite.config.js        # Vite配置文件
+```
 
 ## 技术栈
 
-- Vue 3 - 前端框架
-- Vite - 构建工具
-- Element Plus - UI组件库
-- vis-network - 网络图可视化库
-- relationship.js - 中文人物关系计算库
-- Web Workers - 用于处理复杂计算
+- **前端框架**: Vue 3 - 提供响应式UI和组件化开发
+- **构建工具**: Vite - 提供快速的开发服务器和优化的构建
+- **UI组件库**: Element Plus - 提供丰富的UI组件
+- **可视化库**: vis-network - 提供网络图可视化功能
+- **关系计算**: relationship.js - 提供中文人物关系计算
+- **并行计算**: Web Workers - 处理复杂计算而不阻塞UI
+- **容器化**: Docker - 提供一致的部署环境
 
-## 安装指南
+## API接口
 
-### 普通安装
+本项目是一个纯前端应用，不依赖后端API。所有数据处理和计算都在浏览器中完成。主要功能通过以下内部模块实现：
+
+- **关系计算模块**: 使用relationship.js库计算人物之间的关系链
+- **图形渲染模块**: 使用vis-network库渲染关系网络图
+- **数据导入导出**: 支持JSON格式的关系图数据导入导出
+
+## 使用说明
+
+### 本地部署
 
 1. 克隆项目
 
@@ -58,70 +84,71 @@
    npm run build
    ```
 
-### Docker安装
+### Docker部署
 
-1. 构建Docker镜像
+本项目支持使用Docker进行部署，详细说明请参考[Docker部署指南](./Docker.md)。
+
+简要步骤：
+
+1. 使用Docker Compose部署（推荐）
 
    ```bash
+   # 构建并启动容器
+   docker-compose up -d
+   ```
+
+2. 使用Docker命令部署
+
+   ```bash
+   # 构建Docker镜像
    docker build -t relationship-graph .
-   ```
-
-2. 运行Docker容器
-
-   ```bash
-   # 不设置资源路径前缀
-   docker run -d -p 80:80 relationship-graph
    
-   # 设置资源路径前缀为"app"
-   docker run -d -p 80:80 -e BASE_PATH=app relationship-graph
+   # 运行Docker容器
+   docker run -d -p 80:80 relationship-graph
    ```
 
-3. 访问应用
-   - 不设置前缀时：在浏览器中打开 `http://localhost:80`
-   - 设置前缀为"app"时：在浏览器中打开 `http://localhost:80/app`
+### 配置文件说明
 
-## 资源路径前缀配置说明
+#### .env 文件
 
-本项目支持在打包时通过参数配置资源路径前缀，使得打包后的文件中开头为"/assets/..."的路径会被修改为"/参数/assets/..."。
+`.env`文件用于配置应用的环境变量，主要包含：
 
-### 使用方法
-
-#### 使用npm命令行
-
-```bash
-# 使用自定义构建命令并传递base参数
-npm run build:custom --base=your_path_prefix
+```
+# 资源路径前缀配置
+# 如果需要在子目录下部署应用，请设置此值，填写时不要带上前后斜杠
+# 例如：VITE_BASE_PATH=app 将使应用在 /app/ 路径下可访问
+VITE_BASE_PATH=
 ```
 
-例如，如果你想将资源路径前缀设置为"app"，则可以运行：
+#### docker-compose.yml
 
-```bash
-npm run build:custom --base=app
+`docker-compose.yml`文件定义了Docker Compose的服务配置：
+
+```yaml
+services:
+  relationship-graph:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # 资源路径前缀，可选，默认为空，填写时不要带上前后斜杠
+        - VITE_BASE_PATH=
+    image: relationship-graph
+    container_name: relationship-graph
+    ports:
+      - "9582:80"
+    environment:
+      - VITE_BASE_PATH=${VITE_BASE_PATH:-}
+    restart: always
 ```
 
-这样，打包后的文件中，所有"/assets/..."的路径都会被修改为"/app/assets/..."。
+#### docker-entrypoint.sh
 
-#### 使用Docker运行
+`docker-entrypoint.sh`是Docker容器的入口脚本，主要功能：
 
-使用Docker时，可以通过环境变量在容器启动时设置资源路径前缀：
-
-```bash
-# 运行Docker容器并设置BASE_PATH环境变量
-docker run -d -p 80:80 -e BASE_PATH=your_path_prefix relationship-graph
-```
-
-例如，如果你想将资源路径前缀设置为"app"，则可以运行：
-
-```bash
-docker run -d -p 80:80 -e BASE_PATH=app relationship-graph
-```
-
-### 注意事项
-
-1. 如果不传递参数，则资源路径前缀默认为空，即保持原始的"/assets/..."路径。
-2. 参数值不需要包含前导和尾随斜杠，系统会自动处理。
-3. 该功能主要用于在不同的部署环境中调整资源路径，例如当应用部署在子目录而非根目录时。
-4. 使用Docker时，环境变量设置的资源路径前缀会在容器启动时动态应用，无需重新构建镜像。
+- 加载`.env`文件中的环境变量
+- 配置资源路径前缀
+- 启动Nginx服务器
 
 ## 功能描述
 
@@ -159,4 +186,4 @@ docker run -d -p 80:80 -e BASE_PATH=app relationship-graph
 
 ## 许可证
 
-MIT
+本项目采用[MIT许可证](./LICENSE)。
