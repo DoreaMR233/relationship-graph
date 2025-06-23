@@ -13,7 +13,12 @@ RUN npm install
 # 复制项目文件
 COPY . .
 
-# 构建生产版本，不传递BASE_PATH参数，使用默认值
+ARG VITE_BASE_PATH
+RUN if [ -f .env ]; then \
+    sed -i "/^VITE_BASE_PATH=/c\VITE_BASE_PATH=$VITE_BASE_PATH" .env; \
+    fi
+
+# 构建生产版本，使用.env文件中的配置
 RUN npm run build
 
 # 使用Nginx作为生产服务器
