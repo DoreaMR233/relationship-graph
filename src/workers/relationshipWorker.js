@@ -15,7 +15,6 @@ self.addEventListener('message', function(e) {
     if (data.action === 'visualizeChain') {
       // 处理关系链可视化
       const result = visualizeRelationChain(data);
-      
       // 将结果发送回主线程
       self.postMessage({
         type: 'chainVisualization',
@@ -160,10 +159,10 @@ function mapRelationToStandard(relation) {
     '妻子': '老婆',
     '兄弟': '兄弟',
     '姐妹': '姐妹',
+    '妹妹': '妹妹',
     '哥哥': '哥哥',
-    '弟弟': '弟弟',
-    '姐姐': '姐姐',
-    '妹妹': '妹妹'
+    '弟弟': '弟弟'
+    
   };
   
   return relationMap[relation] || relation;
@@ -282,9 +281,11 @@ function calculateRelationship(data) {
     allChains = chains.map(chain => {
       // 由于关系链是从结束节点到起始节点的顺序，所以在计算称谓时正向称谓要开启翻转，反向称谓不需要翻转
       const relationText = buildRelationText(chain);
-      let forwardName = relationship({ text: relationText, reverse: true, sex: fromNode.gender });
+      // 获取关系链中第一个节点的性别
+      let sex = nodesData.find(n => n.id === chain[0].fromId).gender;
+      let forwardName = relationship({ text: relationText, reverse: true, sex: sex });
       forwardName = getAccurateRelation(toNode, fromNode, forwardName);
-      let reverseName = relationship({ text: relationText, reverse: false, sex: fromNode.gender });
+      let reverseName = relationship({ text: relationText, reverse: false, sex: sex });
       reverseName = getAccurateRelation(fromNode, toNode, reverseName);
       return {
         forward: forwardName,
@@ -367,7 +368,8 @@ function visualizeRelationChain(data) {
   chainNodes.push(fromNode);
   insertedNodes.add(fromNode.id);
   
-  if(rawChain.length > 1){
+  // 检查是否为自环关系
+  if(!(rawChain.length == 1 && rawChain[0].fromId == rawChain[0].toId)){
     // 添加中间节点和边
     for (let i = 0; i < rawChain.length; i++) {
       const toNode = nodesData.find(n => n.id === rawChain[i].toId);
@@ -388,6 +390,7 @@ function visualizeRelationChain(data) {
       chainEdges.push(edge);
     }
   }else{
+    // 处理自环关系
     const edge = {
       id: null,
       from: rawChain[0].fromId,
