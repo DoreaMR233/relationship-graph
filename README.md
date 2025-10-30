@@ -78,13 +78,22 @@
    npm install
    ```
 
-3. 开发环境运行
+3. 配置环境变量
+
+   复制项目中的 `.env.example` 文件为 `.env`，并根据需要修改其中的配置：
+
+   ```bash
+   cp .env.example .env
+   # 然后编辑 .env 文件，设置所需的环境变量
+   ```
+
+4. 开发环境运行
 
    ```bash
    npm run dev
    ```
 
-4. 构建生产版本
+5. 构建生产版本
 
    ```bash
    npm run build
@@ -94,32 +103,13 @@
 
 本项目支持使用Docker进行部署，详细说明请参考[Docker部署指南](./Docker.md)。
 
-简要步骤：
-
-1. 使用Docker Compose部署（推荐）
-
-   ```bash
-   # 构建并启动容器
-   docker-compose up -d
-   ```
-
-2. 使用Docker命令部署
-
-   ```bash
-   # 构建Docker镜像
-   docker build -t relationship-graph .
-   
-   # 运行Docker容器
-   docker run -d -p 80:80 relationship-graph
-   ```
-
 ### 配置文件说明
 
 #### .env 文件
 
 `.env`文件用于配置应用的环境变量，主要包含：
 
-```
+```text
 # 资源路径前缀配置
 # 如果需要在子目录下部署应用，请设置此值，填写时不要带上前后斜杠
 # 例如：VITE_BASE_PATH=app 将使应用在 /app/ 路径下可访问

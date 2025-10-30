@@ -34,7 +34,6 @@
 ├── Dockerfile            # Docker 镜像构建文件
 ├── docker-compose.yml    # Docker Compose 配置文件
 ├── docker-entrypoint.sh  # 容器启动脚本
-├── .env.docker           # Docker 环境变量示例文件
 └── .env.example          # 环境变量示例文件
 └── nginx.conf            # Docker容器中Nginx的配置文件
 ```
@@ -45,10 +44,10 @@
 
 ### 步骤 1：准备环境变量
 
-复制项目中的 `.env.docker` 文件为 `.env`，并根据需要修改其中的配置：
+复制项目中的 `.env.example` 文件为 `.env`，并根据需要修改其中的配置：
 
 ```bash
-cp .env.docker .env
+cp .env.example .env
 # 然后编辑 .env 文件，设置所需的环境变量
 ```
 
