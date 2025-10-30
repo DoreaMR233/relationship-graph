@@ -82,41 +82,37 @@
     
     <!-- 计算关系结果对话框 -->
     
-<el-dialog v-model="calculateDialogVisible" title="人物关系计算结果" width="50%">
+    <el-dialog v-model="calculateDialogVisible" title="人物关系计算结果" width="70%">
       <div v-if="calculateResult.from && calculateResult.to">
         <h3>{{ calculateResult.from.name }} 与 {{ calculateResult.to.name }} 的关系</h3>
-        
-        <el-table :data="calculateResult.chains" :max-height="calculateResult.chains?.length > 5 ? '300px' : null" style="width: 100%" @row-click="showRelationChain">
-  <el-table-column prop="chain" label="关系链"></el-table-column>
-  <el-table-column label="称谓" width="300">
-    <template #default="{ row }">
-      <div class="title-container">
-        <div class="title-item">
-          <span class="title-label">正向({{ calculateResult.from.name }} 叫 {{ calculateResult.to.name }})：</span>
-          <el-tag type="success">{{ row.forward }}</el-tag>
-        </div>
-        <div class="title-item">
-          <span class="title-label">反向({{ calculateResult.to.name }} 叫 {{ calculateResult.from.name }})：</span>
-          <el-tag type="warning">{{ row.reverse }}</el-tag>
-        </div>
-      </div>
-    </template>
-  </el-table-column>
-</el-table>
+        <el-table :data="calculateResult.chains" :max-height="calculateResult.chains?.length > 5 ? '300px' : null" style="width: 100%" @expand-change="handleExpandChange">
+          <el-table-column type="expand">
+            <template #default="props">
+              <div class="chain-visualization-container" style="height: 300px; margin: 10px 0; display: flex; justify-content: center; align-items: center;">
+                <div :id="'chain-network-' + props.$index" class="expanded-chain-network-container" style="width: 80%; height: 100%;"></div>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="chain" label="关系链"></el-table-column>
+          <el-table-column label="称谓" width="300">
+            <template #default="{ row }">
+              <div class="title-container">
+                <div class="title-item">
+                  <span class="title-label">正向({{ calculateResult.from.name }} 叫 {{ calculateResult.to.name }})：</span>
+                  <el-tag type="success">{{ row.forward }}</el-tag>
+                </div>
+                <div class="title-item">
+                  <span class="title-label">反向({{ calculateResult.to.name }} 叫 {{ calculateResult.from.name }})：</span>
+                  <el-tag type="warning">{{ row.reverse }}</el-tag>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="calculateDialogVisible = false">关闭</el-button>
-        </span>
-      </template>
-    </el-dialog>
-    
-    <!-- 关系链可视化对话框 -->
-    <el-dialog v-model="chainDialogVisible" title="关系链可视化" width="60%">
-      <div ref="chainNetworkContainer" class="chain-network-container"></div>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="chainDialogVisible = false">关闭</el-button>
         </span>
       </template>
     </el-dialog>
@@ -207,12 +203,6 @@ import { ZoomIn, ZoomOut, FullScreen, Back, Right, QuestionFilled } from '@eleme
  * @type {import('vue').Ref<HTMLElement>}
  */
 const networkContainer = ref(null);
-
-/**
- * 关系链网络图容器的引用，用于渲染特定关系链的可视化
- * @type {import('vue').Ref<HTMLElement>}
- */
-const chainNetworkContainer = ref(null);
 
 /**
  * 文件输入元素的引用，用于导入关系图文件
@@ -372,12 +362,6 @@ const calculateResult = reactive({
   reverseTitle: ''
 });
 
-/**
- * 关系链可视化对话框是否可见
- * @type {import('vue').Ref<boolean>}
- */
-const chainDialogVisible = ref(false);
-
 // 临时变量
 /**
  * 临时存储节点创建位置
@@ -496,16 +480,20 @@ function initNetwork() {
 /**
  * 初始化关系链网络图
  * @param {Object} chainData - 关系链数据，包含节点和边
+ * @param {String} containerId - 指定渲染容器的ID
  */
-function initChainNetwork(chainData) {
-  const container = chainNetworkContainer.value;
+function initChainNetwork(chainData, containerId) {
+  let container;
   
-  // 添加空值检查和安全访问
-  if (chainNetwork && container && container.hasChildNodes) {
-    chainNetwork.destroy();
-    chainNetwork = null;
+  // 使用指定的容器ID
+  container = document.getElementById(containerId);
+  if (!container) {
+    console.error('找不到指定的容器:', containerId);
+    ElMessage.error('无法渲染关系链: 找不到指定的容器');
+    return;
   }
   
+  // 网络图配置选项
   const options = {
     nodes: {
       shape: 'circle',
@@ -539,17 +527,25 @@ function initChainNetwork(chainData) {
       }
     },
     physics: {
-      stabilization: true
+      stabilization: true,
+      barnesHut: {
+        gravitationalConstant: -2000,
+        centralGravity: 0.1,
+        springLength: 95,
+        springConstant: 0.04,
+        damping: 0.09
+      }
+    },
+    interaction: {
+      navigationButtons: true,
+      keyboard: true
     },
     manipulation: {
       enabled: false
     }
   };
-  if (container) {
-    chainNetwork = new Network(container, chainData, options);
-  } else {
-    console.error('关系链容器未正确初始化');
-  }
+  // 在指定容器中创建新的网络实例，不保存引用
+  new Network(container, chainData, options);
 }
 
 /**
@@ -1064,8 +1060,9 @@ function calculateRelationship() {
  * 显示关系链
  * 可视化展示特定的关系链
  * @param {Object} row - 关系链数据行
+ * @param {string} [containerId] - 自定义容器ID
  */
-function showRelationChain(row) {
+function showRelationChain(row, containerId = null) {
   const loadingInstance = ElLoading.service({
     lock: true,
     text: '正在生成关系链可视化',
@@ -1090,16 +1087,13 @@ function showRelationChain(row) {
       
       if (data.type === 'chainVisualization') {
         const result = data.result;
-        
-        // 显示关系链对话框
-        chainDialogVisible.value = true;
 
         // 初始化关系链网络图
         nextTick(() => {
           initChainNetwork({
-            nodes: new DataSet(result.chainNodes),
-            edges: new DataSet(result.chainEdges)
-          });
+              nodes: new DataSet(result.chainNodes),
+              edges: new DataSet(result.chainEdges)
+            },containerId);
         });
       } else if (data.type === 'error') {
         console.error('Worker错误:', data.error);
@@ -1125,12 +1119,12 @@ function showRelationChain(row) {
       worker.terminate();
     });
     // 发送数据到Worker
-    worker.postMessage({
-      action: 'visualizeChain',
-      chain: JSON.stringify(chain),
-      nodes: nodes.get(),
-      edges: edges.get()
-    });
+      worker.postMessage({
+        action: 'visualizeChain',
+        chain: JSON.stringify(row),
+        nodes: nodes.get(),
+        edges: edges.get()
+      });
   } catch (error) {
     console.error('启动Worker错误:', error);
     ElMessage.error('启动关系链可视化过程失败: ' + error.message);
@@ -1472,32 +1466,21 @@ function chunkArray(array, chunkSize) {
 }
 
 /**
- * 验证是否为有效的人物关系图
- * 检查导入的JSON数据结构是否符合要求
- * @param {Object} data - 要验证的数据
- * @returns {boolean} 是否为有效的人物关系图
+ * 处理表格行展开事件
+ * @param {Object} row 当前行数据
+ * @param {Array} expandedRows 所有展开的行
  */
-function isValidRelationshipGraph(data) {
-  // 检查数据结构
-  if (!data || !Array.isArray(data.nodes) || !Array.isArray(data.edges)) {
-    return false;
+function handleExpandChange(row, expandedRows) {
+  if (expandedRows.includes(row)) {
+    // 行被展开，渲染关系链可视化
+    // 使用行的索引创建唯一容器ID
+    const containerId = 'chain-network-' + row.index;
+    
+    // 调用修改后的 showRelationChain 方法，传入容器ID
+    nextTick(() => {
+      showRelationChain(row, containerId);
+    });
   }
-  
-  // 检查节点数据
-  for (const node of data.nodes) {
-    if (!node.id || !node.label || node.gender === undefined) {
-      return false;
-    }
-  }
-  
-  // 检查边数据
-  for (const edge of data.edges) {
-    if (!edge.id || !edge.from || !edge.to || !edge.label) {
-      return false;
-    }
-  }
-  
-  return true;
 }
 </script>
 
@@ -1539,13 +1522,14 @@ function isValidRelationshipGraph(data) {
   background-color: #f5f7fa;
 }
 
-.chain-network-container {
-  height: 400px;
+.expanded-chain-network-container {
+  height: 300px;
   width: 100%;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
   overflow: hidden;
   background-color: #f5f7fa;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .dialog-footer {
