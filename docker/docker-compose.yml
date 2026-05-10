@@ -1,11 +1,13 @@
-services:
+﻿services:
   relationship-graph:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         # 资源路径前缀，可选，覆盖.env文件中的同名变量
-        # 默认为空，为空时使用.env中同名变量，填写时不要带上前后斜�?        - VITE_BASE_PATH=relationship
+        # 默认为空，为空时使用.env中同名变量，填写时不要带上前后斜杠
+        # 例如：- VITE_BASE_PATH=relationship
+        - VITE_BASE_PATH=relationship
     container_name: relationship-graph
     ports:
       - "9581:80"
