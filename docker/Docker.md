@@ -108,11 +108,9 @@ docker rm relationship-graph
 
 **VITE_BASE_PATH 参数优先级（从高到低）：**
 
-1. **环境变量指定** - 最高优先级，会覆盖其他所有配置
-   - 使用 `docker run -e VITE_BASE_PATH=xxx` 或 `docker-compose.yml environment` 指定
-2. **docker-compose.yml 中的 args** - 构建参数，优先级次之
-   - 在 `docker-compose.yml` 的 `build.args` 中指定
-3. **.env 文件中的配置** - 默认配置，优先级最低
+1. **docker-compose.yml 中的 args** - 构建参数，优先级最高
+   - 在 `docker-compose.yml` 的 `build.args` 中指定，会覆盖 `.env` 文件中的配置
+2. **.env 文件中的配置** - 默认配置，优先级最低
    - 在 `.env` 文件中设置 `VITE_BASE_PATH=xxx`
 
 以下是可用的配置变量：
