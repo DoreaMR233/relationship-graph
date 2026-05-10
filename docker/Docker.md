@@ -74,13 +74,22 @@ docker-compose down
 
 如果您不需要 Docker Compose 的复杂功能，可以直接使用 Docker 命令来部署应用。
 
-### 步骤 1：构建 Docker 镜像
+### 步骤 1：准备环境变量
+
+复制项目中的 `.env.example` 文件为 `.env`，并根据需要修改其中的配置：
+
+```bash
+cp .env.example .env
+# 然后编辑 .env 文件，设置所需的环境变量
+```
+
+### 步骤 2：构建 Docker 镜像
 
 ```bash
 docker build -t relationship-graph .
 ```
 
-### 步骤 2：运行 Docker 容器
+### 步骤 3：运行 Docker 容器
 
 ```bash
 # 不设置资源路径前缀
@@ -90,12 +99,12 @@ docker run -d -p 80:80 --name relationship-graph relationship-graph
 docker run -d -p 80:80 -e VITE_BASE_PATH=app --name relationship-graph relationship-graph
 ```
 
-### 步骤 3：访问网站
+### 步骤 4：访问网站
 
 - 不设置前缀时：在浏览器中打开 `http://localhost:80`
 - 设置前缀为 "app" 时：在浏览器中打开 `http://localhost:80/app`
 
-### 步骤 4：停止和删除容器
+### 步骤 5：停止和删除容器
 
 ```bash
 docker stop relationship-graph
