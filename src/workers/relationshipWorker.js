@@ -135,37 +135,13 @@ function buildRelationText(chain) {
   const relationParts = [];
   
   for (const item of chain) {
-    const relation = mapRelationToStandard(item.relation);
+    const relation = item.relation;
     if (relation) {
       relationParts.push(relation);
     }
   }
   
   return relationParts.join('的');
-}
-
-/**
- * 将自定义关系映射到标准关系
- * @param {string} relation - 自定义关系名称
- * @returns {string} 标准关系名称
- */
-function mapRelationToStandard(relation) {
-  const relationMap = {
-    '父亲': '爸爸',
-    '母亲': '妈妈',
-    '儿子': '儿子',
-    '女儿': '女儿',
-    '丈夫': '老公',
-    '妻子': '老婆',
-    '兄弟': '兄弟',
-    '姐妹': '姐妹',
-    '妹妹': '妹妹',
-    '哥哥': '哥哥',
-    '弟弟': '弟弟'
-    
-  };
-  
-  return relationMap[relation] || relation;
 }
 
 /**

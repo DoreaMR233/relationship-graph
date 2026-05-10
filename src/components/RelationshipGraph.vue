@@ -69,7 +69,18 @@
     <el-dialog v-model="relationDialogVisible" :title="relationDialogType === 'create' ? '创建关系' : '编辑关系'" width="30%">
       <el-form :model="relationForm" label-width="80px">
         <el-form-item label="关系名称" required>
-          <el-input v-model="relationForm.name" placeholder="请输入关系名称"></el-input>
+          <el-select v-model="relationForm.name" placeholder="请选择关系名称">
+            <el-option label="父亲" value="父亲"></el-option>
+            <el-option label="母亲" value="母亲"></el-option>
+            <el-option label="丈夫" value="丈夫"></el-option>
+            <el-option label="妻子" value="妻子"></el-option>
+            <el-option label="儿子" value="儿子"></el-option>
+            <el-option label="女儿" value="女儿"></el-option>
+            <el-option label="哥哥" value="哥哥"></el-option>
+            <el-option label="弟弟" value="弟弟"></el-option>
+            <el-option label="姐姐" value="姐姐"></el-option>
+            <el-option label="妹妹" value="妹妹"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -1038,13 +1049,13 @@ function calculateRelationship() {
       worker.terminate();
     });
     
-    // 发送数据到Worker
-    worker.postMessage({
+    // 发送数据到Worker - 使用JSON序列化确保数据可以被安全克隆
+    worker.postMessage(JSON.parse(JSON.stringify({
       fromNode: fromNode,
       toNode: toNode,
       nodesData: nodes.get(),
       edgesData: edges.get()
-    });
+    })));
   } catch (error) {
     console.error('启动Worker错误:', error);
     ElMessage.error('启动计算过程失败: ' + error.message);
@@ -1118,13 +1129,13 @@ function showRelationChain(row, containerId = null) {
       // 终止Worker
       worker.terminate();
     });
-    // 发送数据到Worker
-      worker.postMessage({
+    // 发送数据到Worker - 使用JSON序列化确保数据可以被安全克隆
+      worker.postMessage(JSON.parse(JSON.stringify({
         action: 'visualizeChain',
         chain: JSON.stringify(row),
         nodes: nodes.get(),
         edges: edges.get()
-      });
+      })));
   } catch (error) {
     console.error('启动Worker错误:', error);
     ElMessage.error('启动关系链可视化过程失败: ' + error.message);
