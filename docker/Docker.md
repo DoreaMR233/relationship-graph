@@ -10,10 +10,6 @@
 - [使用 Docker Run 部署](#使用-docker-run-部署)
 - [配置参数](#配置参数)
   - [配置文件变量](#配置文件变量)
-  - [卷](#卷)
-  - [网络](#网络)
-- [与其他服务集成](#与其他服务集成)
-- [自定义构建](#自定义构建)
 - [常见问题](#常见问题)
 
 ## 前提条件
@@ -110,114 +106,20 @@ docker rm relationship-graph
 
 ### 配置文件变量
 
+**VITE_BASE_PATH 参数优先级（从高到低）：**
+
+1. **环境变量指定** - 最高优先级，会覆盖其他所有配置
+   - 使用 `docker run -e VITE_BASE_PATH=xxx` 或 `docker-compose.yml environment` 指定
+2. **docker-compose.yml 中的 args** - 构建参数，优先级次之
+   - 在 `docker-compose.yml` 的 `build.args` 中指定
+3. **.env 文件中的配置** - 默认配置，优先级最低
+   - 在 `.env` 文件中设置 `VITE_BASE_PATH=xxx`
+
 以下是可用的配置变量：
 
 | 变量名称           | 变量中文名  | 变量作用                   | 变量默认值  |
 |----------------|--------|------------------------|--------|
 | VITE_BASE_PATH | 资源路径前缀 | 配置应用的资源路径前缀，用于在子目录部署应用 | 空（无前缀） |
-
-### 卷
-
-虽然默认配置中没有定义卷，但您可以根据需要添加以下卷映射：
-
-```yaml
-volumes:
-  # 持久化自定义配置
-  - ./custom-config:/app/custom-config
-  # 持久化导出的数据
-  - ./exports:/app/exports
-```
-
-### 网络
-
-默认情况下，容器使用 Docker 的默认网络。如果需要自定义网络配置，可以在 `docker-compose.yml` 中添加：
-
-```yaml
-networks:
-  relationship-network:
-    driver: bridge
-
-services:
-  relationship-graph:
-    # ... 其他配置 ...
-    networks:
-      - relationship-network
-```
-
-## 与其他服务集成
-
-人物关系图制作器是一个独立的前端应用，但您可能希望将其与其他服务集成。以下是一些常见的集成场景：
-
-### 与反向代理（如 Nginx 或 Traefik）集成
-
-```yaml
-services:
-  relationship-graph:
-    # ... 配置 ...
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.relationship.rule=Host(`relationship.example.com`)"
-
-  traefik:
-    image: traefik:v2.5
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-```
-
-### 与数据库服务集成（用于未来可能的后端功能）
-
-```yaml
-services:
-  relationship-graph:
-    # ... 配置 ...
-    depends_on:
-      - db
-
-  db:
-    image: postgres:13
-    environment:
-      POSTGRES_PASSWORD: example
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-
-volumes:
-  postgres-data:
-```
-
-## 自定义构建
-
-您可以通过修改 Dockerfile 来自定义构建过程。以下是一些常见的自定义场景：
-
-### 使用不同的 Node.js 版本
-
-修改 Dockerfile 的第一行：
-
-```dockerfile
-# 使用不同版本的 Node.js
-FROM node:16-alpine AS builder
-```
-
-### 使用不同的 Nginx 配置
-
-创建自定义的 Nginx 配置文件 `nginx.conf`，然后在 Dockerfile 中添加：
-
-```dockerfile
-# 复制自定义 Nginx 配置
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-```
-
-### 添加健康检查
-
-在 Dockerfile 中添加：
-
-```dockerfile
-# 添加健康检查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
-```
 
 ## 常见问题
 

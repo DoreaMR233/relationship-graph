@@ -122,21 +122,26 @@ VITE_BASE_PATH=
 
 `docker-compose.yml`文件定义了Docker Compose的服务配置：
 
+**VITE_BASE_PATH 参数优先级（从高到低）：**
+
+1. **环境变量指定** - 最高优先级，会覆盖其他所有配置
+2. **docker-compose.yml 中的 args** - 构建参数，优先级次之
+3. **.env 文件中的配置** - 默认配置，优先级最低
+
 ```yaml
 services:
   relationship-graph:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
       args:
-        # 资源路径前缀，可选，默认为空，填写时不要带上前后斜杠
-        - VITE_BASE_PATH=
+        # 资源路径前缀，可选，覆盖.env文件中的同名变量
+        # 默认为空，为空时使用.env中同名变量，填写时不要带上前后斜杠
+        - VITE_BASE_PATH=relationship
     image: relationship-graph
     container_name: relationship-graph
     ports:
-      - "9582:80"
-    environment:
-      - VITE_BASE_PATH=${VITE_BASE_PATH:-}
+      - "9581:80"
     restart: always
 ```
 
