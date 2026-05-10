@@ -70,6 +70,24 @@ docker-compose up -d --build
 docker-compose down
 ```
 
+### 注意事项
+
+#### 宝塔面板部署
+
+在宝塔面板中使用 Docker Compose 部署时，需要将 `docker-compose.yml` 中的相对路径转换为绝对路径：
+
+```yaml
+services:
+  relationship-graph:
+    build:
+      context: /www/wwwroot/your-project-directory  # 替换为项目根目录的绝对路径
+      dockerfile: /www/wwwroot/your-project-directory/docker/Dockerfile  # 替换为Dockerfile的绝对路径
+```
+
+**说明**：
+- `context` 需要指向项目根目录（包含 `package.json` 的目录）
+- `dockerfile` 需要指向 `docker/Dockerfile` 的完整绝对路径
+
 ## 使用 Docker Run 部署
 
 如果您不需要 Docker Compose 的复杂功能，可以直接使用 Docker 命令来部署应用。
