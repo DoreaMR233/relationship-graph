@@ -31,11 +31,13 @@
 人物关系图制作器的 Docker 相关文件结构如下：
 
 ```text
-├── Dockerfile            # Docker 镜像构建文件
-├── docker-compose.yml    # Docker Compose 配置文件
-├── docker-entrypoint.sh  # 容器启动脚本
+├── docker/               # Docker部署相关文件
+│   ├── Dockerfile            # Docker 镜像构建文件
+│   ├── docker-compose.yml    # Docker Compose 配置文件
+│   ├── docker-entrypoint.sh  # 容器启动脚本
+│   ├── nginx.conf            # Docker容器中Nginx的配置文件
+│   └── Docker.md             # Docker部署指南
 └── .env.example          # 环境变量示例文件
-└── nginx.conf            # Docker容器中Nginx的配置文件
 ```
 
 ## 使用 Docker Compose 部署

@@ -35,11 +35,13 @@
 │   └── main.js           # 应用入口
 ├── public/               # 公共资源目录
 ├── img/                  # 图片资源
-├── Dockerfile            # Docker镜像构建文件
-├── docker-compose.yml    # Docker Compose配置
-├── docker-entrypoint.sh  # Docker容器启动脚本
+├── docker/               # Docker部署相关文件
+│   ├── Dockerfile            # Docker镜像构建文件
+│   ├── docker-compose.yml    # Docker Compose配置
+│   ├── docker-entrypoint.sh  # Docker容器启动脚本
+│   ├── nginx.conf            # Docker容器中Nginx的配置文件
+│   └── Docker.md             # Docker部署指南
 ├── .env.example          # 环境变量示例
-└── nginx.conf            # Docker容器中Nginx的配置文件
 └── vite.config.js        # Vite配置文件
 ```
 
@@ -101,7 +103,7 @@
 
 ### Docker部署
 
-本项目支持使用Docker进行部署，详细说明请参考[Docker部署指南](./Docker.md)。
+本项目支持使用Docker进行部署，详细说明请参考[Docker部署指南](./docker/Docker.md)。
 
 ### 配置文件说明
 
