@@ -29,10 +29,10 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 COPY --from=builder /app/.env /app/.env
 
 # 复制自定义Nginx配置文件
-COPY nginx.conf /nginx.conf
+COPY docker/nginx.conf /nginx.conf
 
 # 复制启动脚本
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 
 # 确保脚本可执行
 RUN chmod +x /docker-entrypoint.sh
