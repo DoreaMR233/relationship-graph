@@ -93,10 +93,81 @@
     
     <!-- 计算关系结果对话框 -->
     
-    <el-dialog v-model="calculateDialogVisible" title="人物关系计算结果" width="70%">
-      <div v-if="calculateResult.from && calculateResult.to">
-        <h3>{{ calculateResult.from.name }} 与 {{ calculateResult.to.name }} 的关系</h3>
-        <el-table :data="calculateResult.chains" :max-height="calculateResult.chains?.length > 5 ? '300px' : null" style="width: 100%" @expand-change="handleExpandChange">
+    <el-dialog 
+      v-model="calculateDialogVisible" 
+      :width="isCalculateDialogMaximized ? '100%' : calculateDialogWidth" 
+      :show-close="false"
+      :style="{ height: isCalculateDialogMaximized ? '100%' : calculateDialogHeight }"
+      :fullscreen="isCalculateDialogMaximized"
+    >
+      <template #header>
+        <div class="custom-header">
+          <span>人物关系计算结果</span>
+          <div class="header-controls">
+            <div class="resize-handles">
+              <label class="resize-label">宽度:</label>
+              <el-slider 
+                v-model="dialogWidthPercent" 
+                :min="30" 
+                :max="95" 
+                :step="1" 
+                style="width: 120px;"
+                @change="updateDialogWidth"
+              />
+              <label class="resize-label">高度:</label>
+              <el-slider 
+                v-model="dialogHeightPercent" 
+                :min="30" 
+                :max="95" 
+                :step="1" 
+                style="width: 120px;"
+                @input="handleDialogHeightChange"
+              />
+            </div>
+            <div class="control-buttons">
+              <button 
+                class="control-btn" 
+                @click="toggleCalculateDialogMaximize"
+                title="最大化"
+                v-if="!isCalculateDialogMaximized"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <polyline points="9 21 3 21 3 15"></polyline>
+                  <line x1="21" y1="3" x2="14" y2="10"></line>
+                  <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
+              </button>
+              <button 
+                class="control-btn" 
+                @click="toggleCalculateDialogMaximize"
+                title="还原"
+                v-else
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                  <polyline points="15 21 21 21 21 15"></polyline>
+                  <polyline points="9 3 3 3 3 9"></polyline>
+                  <line x1="21" y1="21" x2="14" y2="14"></line>
+                  <line x1="3" y1="3" x2="10" y2="10"></line>
+                </svg>
+              </button>
+                <button 
+                class="control-btn close-btn" 
+                @click="calculateDialogVisible = false"
+                title="关闭"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+      <div v-if="calculateResult.from && calculateResult.to" class="dialog-content">
+        <h3 class="content-title">{{ calculateResult.from.name }} 与 {{ calculateResult.to.name }} 的关系</h3>
+        <el-table :data="calculateResult.chains" :max-height="tableMaxHeight" style="width: 100%" @expand-change="handleExpandChange">
           <el-table-column type="expand">
             <template #default="props">
               <div class="chain-visualization-container" style="height: 300px; margin: 10px 0; display: flex; justify-content: center; align-items: center;">
@@ -121,11 +192,11 @@
           </el-table-column>
         </el-table>
       </div>
-      <template #footer>
+      <!-- <template #footer>
         <span class="dialog-footer">
           <el-button @click="calculateDialogVisible = false">关闭</el-button>
         </span>
-      </template>
+      </template> -->
     </el-dialog>
     
     <!-- 文件上传组件 -->
@@ -206,7 +277,7 @@ import { ref, reactive, onMounted, nextTick } from 'vue';
 import { Network, DataSet } from 'vis-network/standalone';
 import { saveAs } from 'file-saver';
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
-import { ZoomIn, ZoomOut, FullScreen, Back, Right, QuestionFilled } from '@element-plus/icons-vue';
+import { ZoomIn, ZoomOut, FullScreen, Back, Right, QuestionFilled, Minus, Close } from '@element-plus/icons-vue';
 
 // 网络图容器引用
 /**
@@ -355,6 +426,123 @@ const helpDialogVisible = ref(false);
  * @type {import('vue').Ref<boolean>}
  */
 const calculateDialogVisible = ref(false);
+
+/**
+ * 计算关系对话框宽度
+ * @type {import('vue').Ref<string>}
+ */
+const calculateDialogWidth = ref('70%');
+
+/**
+ * 计算关系对话框高度
+ * @type {import('vue').Ref<string>}
+ */
+const calculateDialogHeight = ref('60%');
+
+/**
+ * 计算关系对话框是否最大化
+ * @type {import('vue').Ref<boolean>}
+ */
+const isCalculateDialogMaximized = ref(false);
+
+/**
+ * 计算关系对话框宽度百分比
+ * @type {import('vue').Ref<number>}
+ */
+const dialogWidthPercent = ref(70);
+
+/**
+ * 计算关系对话框高度百分比
+ * @type {import('vue').Ref<number>}
+ */
+const dialogHeightPercent = ref(60);
+
+/**
+ * 保存最大化前的宽度百分比
+ * @type {import('vue').Ref<number>}
+ */
+const savedWidthPercent = ref(70);
+
+/**
+ * 保存最大化前的高度百分比
+ * @type {import('vue').Ref<number>}
+ */
+const savedHeightPercent = ref(60);
+
+/**
+ * 切换计算关系对话框最大化/最小化
+ */
+function toggleCalculateDialogMaximize() {
+  if (!isCalculateDialogMaximized.value) {
+    // 最大化：保存当前值，设置为100%
+    savedWidthPercent.value = dialogWidthPercent.value;
+    savedHeightPercent.value = dialogHeightPercent.value;
+    dialogWidthPercent.value = 100;
+    dialogHeightPercent.value = 100;
+    calculateDialogWidth.value = '100%';
+    calculateDialogHeight.value = '100%';
+    updateTableMaxHeight();
+  } else {
+    // 最小化：恢复保存的值
+    dialogWidthPercent.value = savedWidthPercent.value;
+    dialogHeightPercent.value = savedHeightPercent.value;
+    calculateDialogWidth.value = `${savedWidthPercent.value}%`;
+    calculateDialogHeight.value = `${savedHeightPercent.value}%`;
+    // 等待DOM更新完成后再更新表格高度
+    nextTick(() => {
+      updateTableMaxHeight();
+    });
+  }
+  isCalculateDialogMaximized.value = !isCalculateDialogMaximized.value;
+}
+
+/**
+ * 更新对话框宽度
+ * @param {number} value - 宽度百分比
+ */
+function updateDialogWidth(value) {
+  calculateDialogWidth.value = `${value}%`;
+}
+
+/**
+ * 更新对话框高度
+ * @param {number} value - 高度百分比
+ */
+function updateDialogHeight(value) {
+  calculateDialogHeight.value = `${value}%`;
+}
+
+/**
+ * 表格最大高度（动态计算）
+ * @type {import('vue').Ref<string>}
+ */
+const tableMaxHeight = ref('300px');
+
+/**
+ * 更新表格最大高度
+ */
+function updateTableMaxHeight() {
+  // 根据对话框高度计算表格最大高度（减去标题、边距等约100px）
+  const heightPercent = dialogHeightPercent.value;
+  const viewportHeight = window.innerHeight;
+  const dialogHeight = (viewportHeight * heightPercent) / 100;
+  // 减去头部、标题、边距等占用的高度
+  const tableHeight = Math.max(150, dialogHeight - 120);
+  tableMaxHeight.value = `${tableHeight}px`;
+}
+
+/**
+ * 监听对话框高度变化，更新表格高度
+ */
+function handleDialogHeightChange(value) {
+  calculateDialogHeight.value = `${value}%`;
+  updateTableMaxHeight();
+}
+
+// 对话框打开时更新表格高度
+function openCalculateDialog() {
+  updateTableMaxHeight();
+}
 
 /**
  * 计算关系结果数据
@@ -1014,6 +1202,9 @@ function calculateRelationship() {
           calculateResult.forwardTitle = result.forwardTitle;
           calculateResult.reverseTitle = result.reverseTitle;
           
+          // 更新表格高度
+          updateTableMaxHeight();
+          
           // 显示结果对话框
           calculateDialogVisible.value = true;
         }
@@ -1571,5 +1762,80 @@ function handleExpandChange(row, expandedRows) {
 
 .help-content p {
   margin: 8px 0;
+}
+
+.custom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.resize-handles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.resize-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.control-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.control-btn:hover {
+  background: #eef2f7;
+  color: #333;
+}
+
+.control-btn.close-btn:hover {
+  background: #f56c6c;
+  color: #fff;
+}
+
+.dialog-content {
+  height: calc(100% - 60px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content-title {
+  flex-shrink: 0;
+  margin-bottom: 15px;
+}
+
+.dialog-content :deep(.el-table) {
+  flex: 1;
+  min-height: 0;
+}
+
+.dialog-content :deep(.el-table__body-wrapper) {
+  overflow-y: auto;
 }
 </style>
