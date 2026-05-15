@@ -28,11 +28,9 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY --from=builder /app/.env /app/.env
 
-# 复制自定义Nginx配置文件
-COPY docker/nginx.conf /nginx.conf
-
-# 复制启动脚本
-COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
+# 从builder阶段复制Nginx配置文件和启动脚本
+COPY --from=builder /app/docker/nginx.conf /nginx.conf
+COPY --from=builder /app/docker/docker-entrypoint.sh /docker-entrypoint.sh
 
 # 确保脚本可执行
 RUN chmod +x /docker-entrypoint.sh
