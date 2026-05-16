@@ -104,7 +104,7 @@
         <div class="custom-header">
           <span>人物关系计算结果</span>
           <div class="header-controls">
-            <div class="resize-handles">
+            <div class="resize-handles" v-if="!isCalculateDialogMaximized">
               <label class="resize-label">宽度:</label>
               <el-slider 
                 v-model="dialogWidthPercent" 
